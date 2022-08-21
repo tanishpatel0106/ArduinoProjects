@@ -9,7 +9,7 @@ int threshold_value = 100;
 const int ledPin1 = 13;
 const int ledPin2 = 12;
 const int ledPin3 = 5;
-  
+
 void setup(){
     pinMode(in1, OUTPUT);
     pinMode(in2, OUTPUT);
@@ -23,83 +23,85 @@ void setup(){
     Serial.begin(9600);
 }
 
-void leftIndicator(){
-  for(int i=0; i<=10; i++){
-    digitalWrite(ledPin1, HIGH);
-    delay(500);
-    digitalWrite(ledPin1, LOW);
-    delay(500);
-  }
+void speedControl(){
+    int a = analogRead(in1);
+    for(int i=a; i>=0; i--){
+        analogWrite(in1, i);
+        analogWrite(in3, i);
+        delay(10);
+    }
 }
 
-int count = 0;
+void leftIndicator(){
+    for(int i=0; i<5; i++){
+        digitalWrite(ledPin1, HIGH);
+        delay(100);
+        digitalWrite(ledPin1, LOW);
+        delay(100);
+    }
+}
 
-void park(){
-  if(count == 0){
-        leftIndicator();
-        int spd = analogRead(in1);
-        digitalWrite(ledPin2, HIGH);
-        analogWrite(in1, spd);
-        digitalWrite(in2, LOW);
-        analogWrite(in3, spd);
-        digitalWrite(in4, LOW);
-        delay(1000);
-        analogWrite(in1, spd);
-        digitalWrite(in2, LOW);
-        digitalWrite(in3, LOW);
-        digitalWrite(in4, LOW);
-        delay(400);
-        analogWrite(in1, spd);
-        digitalWrite(in2, LOW);
-        analogWrite(in3, spd);
-        digitalWrite(in4, LOW);
-        delay(1000);
-        digitalWrite(in1, LOW);
-        digitalWrite(in2, LOW);
-        analogWrite(in3, spd);
-        digitalWrite(in4, LOW);
-        delay(600);
-        analogWrite(in1, spd);
-        digitalWrite(in2, LOW);
-        analogWrite(in3, spd);
-        digitalWrite(in4, LOW);
-        delay(1000);
-        digitalWrite(in1, LOW);
-        digitalWrite(in2, LOW);
-        digitalWrite(in3, LOW);
-        digitalWrite(in4, LOW);
-        delay(5000);
-        digitalWrite(ledPin2, LOW);
-        count = 1;
-  }
-  else{
+void parkCar(){
+    leftIndicator();
     digitalWrite(ledPin1, HIGH);
     digitalWrite(ledPin2, HIGH);
+    analogWrite(in1, 100);
+    digitalWrite(in2, LOW);
+    analogWrite(in3, 100);
+    digitalWrite(in4, LOW);
+    Serial.out.println("Parking");
+    delay(1000);
+    analogWrite(in1, 100);
+    digitalWrite(in2, LOW);
+    digitalWrite(in3, LOW);
+    digitalWrite(in4, LOW);
+    Serial.out.println("Left Turn");
+    delay(1000);
+    analogWrite(in1, 100);
+    digitalWrite(in2, LOW);
+    analogWrite(in3, 100);
+    digitalWrite(in4, LOW);
+    Serial.out.println("Moving Forward");
+    delay(1000);
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, LOW);
+    analogWrite(in3, 100);
+    digitalWrite(in4, LOW);
+    Serial.out.println("Right Turn");
+    delay(1000);
+    analogWrite(in1, 100);
+    digitalWrite(in2, LOW);
+    analogWrite(in3, 100);
+    digitalWrite(in4, LOW);
+    Serial.out.println("Moving Forward");
+    delay(1000);
+    speedControl();
+    digitalWrite(in1, LOW);
+    digitalWrite(in2, LOW);
+    digitalWrite(in3, LOW);
+    digitalWrite(in4, LOW);
+    Serial.out.println("Parked");
     digitalWrite(ledPin3, HIGH);
-  }
-}
-
-void startCar(){
-  digitalWrite(ledPin1, LOW);
-  digitalWrite(ledPin2, LOW);
-  digitalWrite(ledPin3, LOW);
-  analogWrite(in1, 200);
-  digitalWrite(in2, LOW);
-  analogWrite(in3, 200);
-  digitalWrite(in4, LOW);
-  count = 0;
+    delay(1000);
 }
 
 void loop(){
     int sensorValue = analogRead(AOUTPin);
-    if(sensorValue<threshold_value){
-        digitalWrite(relay1, HIGH);
-        startCar();
-        Serial.println("Moving Forward ");
+    if(sensorValue>threshold_value){
+        Serial.println("Alcohol detected - Car Stopping");
+        park();
+        digitalWrite(relay1, LOW);  
     }
     else{
-        park();
+        digitalWrite(relay1, HIGH);
+        digitalWrite(ledPin1, LOW);
+        digitalWrite(ledPin2, LOW);
+        digitalWrite(ledPin3, LOW);
+        digitalWrite(in1, HIGH);
+        digitalWrite(in2, LOW);
+        digitalWrite(in3, HIGH);
+        digitalWrite(in4, LOW);
     }
     Serial.println(sensorValue);
-    delay(10);
+    delay(1000);
 }
